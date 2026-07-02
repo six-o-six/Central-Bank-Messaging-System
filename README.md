@@ -6,12 +6,12 @@ Simulação simplificada do ecossistema PIX brasileiro, feita para a disciplina 
 
 O sistema tem três partes:
 
-- **`produtor.py`** — simula vários bancos ao mesmo tempo (`BankA` a `BankE`), cada um rodando em sua própria thread. A cada 1-5 segundos, cada banco gera uma transação PIX aleatória (valor, conta de origem/destino, banco destinatário) e publica na fila `pix` do RabbitMQ.
+- **`produtor.py`** — simula vários bancos ao mesmo tempo (`BancoA` a `BancoE`), cada um rodando em sua própria thread. A cada 1-5 segundos, cada banco gera uma transação PIX aleatória (valor, conta de origem/destino, banco destinatário) e publica na fila `pix` do RabbitMQ.
 - **RabbitMQ** — o message broker. Recebe as transações publicadas pelos produtores e as entrega ao consumidor. Roda em Docker via `docker-compose.yml`.
 - **`consumidor.py`** — o serviço de Auditoria (Audit Logging Service). Fica escutando a fila `pix`, e para cada transação recebida grava uma linha no arquivo `audit.log`, no formato:
 
   ```
-  [2026-06-01 10:15:30] TX123456 | BankA | BankB | 1500.50
+  [2026-06-01 10:15:30] TX123456 | BancoA | BancoB | 1500.50
   ```
 
   Cada mensagem só é confirmada (`ack`) ao broker depois de gravada com sucesso, então nenhuma transação é perdida se o consumidor cair no meio do processo.
@@ -19,9 +19,9 @@ O sistema tem três partes:
 Fluxo resumido:
 
 ```
-BankA ─┐
-BankB ─┼─► RabbitMQ (fila "pix") ─► consumidor.py ─► audit.log
-BankC ─┘
+BancoA ─┐
+BancoB ─┼─► RabbitMQ (fila "pix") ─► consumidor.py ─► audit.log
+BancoC ─┘
 ```
 
 ## Pré-requisitos
